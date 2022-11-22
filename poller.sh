@@ -15,7 +15,7 @@ function poll {
   printf "Status of DAG_RUN_ID ${DAG_RUN_ID} for DAG ${DAG_ID}: $STATE\n"
 }
 
-while [ "$STATE" != "success" ]; do
+while [ "$STATE" = "queued" ] || [ "$STATE" = "running" ]; do
   sleep 3
   poll
 done
