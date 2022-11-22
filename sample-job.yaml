@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trigger-airflow-dag
+spec:
+  template:
+    spec:
+      containers:
+        - name: trigger-airflow-dag
+          image: redactics/airflow-dagrun-poller:1.0.0
+          args:
+          - bash
+          - -c
+          - |
+              # insert code here that generates a unique Airflow run ID (e.g. sequential/incrementing number, UUID, etc.)
+              # and assigns this value to DAG_RUN_ID
+              DAG_RUN_ID=1
+              # remove basic authorization header if you have this feature disabled, provide conf variables to your DAG as needed as JSON params
+              curl -s -X POST -H "Authorization: Basic ${BASIC_AUTH}" -H "Content-Type: application/json" -d "{\"dag_run_id\": \"${DAG_RUN_ID}\", \"conf\": {}}" ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns
+              DAG_RUN_ID=${DAG_RUN_ID} /poller.sh
+          env:
+          # Your Airflow webserver (REST API) URL
+          - name: API_URL
+            value: http://webserver.redactics.svc.cluster.local:8080
+          # Name of your Airflow DAG to run
+          - name: DAG_ID
+            value: airflow_dag_name
+          # If you have basic auth enabled to protect your Airflow REST API, provider this token here, which is a base64 encoded version
+          # of your Airflow username:password
+          - name: BASIC_AUTH
+            valueFrom:
+              secretKeyRef:
+                name: airflow-poller
+                key: basic-auth
