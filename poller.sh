@@ -8,14 +8,18 @@ fi
 STATE=""
 function poll {
   if [ -z "$BASIC_AUTH" ]; then
-    STATE=$(curl -s ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns/${DAG_RUN_ID} | jq -r '.state')
+    RESPONSE=$(curl -v -s ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns/${DAG_RUN_ID})
   else
-    STATE=$(curl -s -H "Authorization: Basic ${BASIC_AUTH}" ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns/${DAG_RUN_ID} | jq -r '.state')
+    RESPONSE=$(curl -v -s -H "Authorization: Basic ${BASIC_AUTH}" ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns/${DAG_RUN_ID})
   fi
+  STATE=$(echo "$RESPONSE" | jq -r '.state')
   printf "Status of DAG_RUN_ID ${DAG_RUN_ID} for DAG ${DAG_ID}: $STATE\n"
 }
 
-while [ "$STATE" = "queued" ] || [ "$STATE" = "running" ]; do
+while [ "$STATE" = "" ] || [ "$STATE" = "queued" ] || [ "$STATE" = "running" ]; do
   sleep 3
   poll
 done
+if [ "$STATE" = "failed" ] || [ -z "$STATE" ]; then
+  exit 1
+fi
