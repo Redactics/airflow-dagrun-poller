@@ -5,3 +5,7 @@ I don't know if this will be useful to the open source community in general, or 
 ### Sample Job
 
 An example of how the poller can be utilized in the context of a Kubernetes job is included as `sample-job.yaml`. This poller will work in other contexts too, including as a standalone script.
+
+### Support for following Airflow log output
+
+When the variable `TAIL_TASK_ID` is set, at polling time the poller will also return log output for this provided Airflow task ID. This allows tracking progress of the DagRun. In the future support may be added for following output for all active tasks, but feel free to contribute this feature!
