@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: trigger-airflow-dag
-          image: redactics/airflow-dagrun-poller:1.0.0
+          image: redactics/airflow-dagrun-poller:1.1.0
           args:
           - bash
           - -c
@@ -16,7 +16,7 @@ spec:
               # and assigns this value to DAG_RUN_ID
               DAG_RUN_ID=1
               # remove basic authorization header if you have this feature disabled, provide conf variables to your DAG as needed as JSON params
-              curl -s -X POST -H "Authorization: Basic ${BASIC_AUTH}" -H "Content-Type: application/json" -d "{\"dag_run_id\": \"${DAG_RUN_ID}\", \"conf\": {}}" ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns
+              curl -s -X POST -H "Authorization: Basic ${BASIC_AUTH}" -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"dag_run_id\": \"${DAG_RUN_ID}\", \"conf\": {}}" ${API_URL}/api/v1/dags/${DAG_ID}/dagRuns
               DAG_RUN_ID=${DAG_RUN_ID} /poller.sh
           env:
           # Your Airflow webserver (REST API) URL
